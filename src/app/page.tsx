@@ -69,7 +69,7 @@ export default function Home() {
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
                   msg.role === "user"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-black"
                     : "bg-gray-100 text-gray-800"
                 }`}
               >
@@ -100,7 +100,7 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 disabled:bg-blue-300 transition"
+            className="bg-blue-600 text-black px-6 py-3 rounded-xl hover:bg-blue-700 disabled:bg-blue-300 transition"
           >
             Send
           </button>
