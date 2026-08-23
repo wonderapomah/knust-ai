@@ -3,20 +3,42 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [messages, setMessages] = useState("");
+  const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
 
   async function sendMessage() {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+    if (!message.trim()) {
+      alert("Please enter a message.");
+      return;
+    }
+
+    setReply("Loading...");
+
+
+
+    try {
+
+
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ message }),
     });
     const data = await response.json();
+
+    if (!response.ok) {
+      setReply(`Error: ${data.error || "Unknown error"}`);
+      return;
+    }
     setReply(data.reply);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    setReply("Error: Unable to send message.");
   }
+}
 
   return (
     <div className="flex flex-col items-center p-10">
@@ -25,8 +47,8 @@ export default function Home() {
       <input
         className="border p-2 w-full max-w-md mb-4"
         placeholder="Type your message..."
-        value={messages}
-        onChange={(e) => setMessages(e.target.value)}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
       />
 
       <button
