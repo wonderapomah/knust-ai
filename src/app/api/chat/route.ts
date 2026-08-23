@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const { message } = await req.json();
 
@@ -14,9 +14,8 @@ export async function POST(req: Request) {
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      console.error("GROQ_API_KEY is missing");
       return NextResponse.json(
-        { error: "Groq API key is not configured" },
+        { error: "API key not configured" },
         { status: 500 }
       );
     }
@@ -30,47 +29,39 @@ export async function POST(req: Request) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "llama3-3.3-70b-versatile",
+          model: "llama-3.3-70b-versatile", // or "llama-3.1-8b-instant"
           messages: [
+            {
+              role: "system",
+              content:
+                "You are KNUST AI, a helpful academic assistant for students and lecturers at Kwame Nkrumah University of Science and Technology. You help with coding, science, research, and explanations. Be clear, accurate, and educational.",
+            },
             {
               role: "user",
               content: message,
             },
           ],
+          temperature: 0.7,
+          max_tokens: 1024,
         }),
       }
     );
 
-    const data = await response.json();
-
-    // Handle Groq errors
     if (!response.ok) {
-      console.error("Groq API error:", data);
-
+      const errorData = await response.text();
+      console.error("Groq API error:", errorData);
       return NextResponse.json(
-        {
-          error:
-            data?.error?.message || "Groq API request failed",
-        },
-        { status: response.status }
-      );
-    }
-
-    const reply = data?.choices?.[0]?.message?.content;
-
-    if (!reply) {
-      console.error("Unexpected Groq response:", data);
-
-      return NextResponse.json(
-        { error: "No response was returned by Groq" },
+        { error: "Failed to get response from AI" },
         { status: 500 }
       );
     }
 
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || "No response generated.";
+
     return NextResponse.json({ reply });
   } catch (error) {
-    console.error("Server error:", error);
-
+    console.error("API Route Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

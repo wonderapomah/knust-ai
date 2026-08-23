@@ -3,65 +3,109 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [message, setMessage] = useState("");
-  const [reply, setReply] = useState("");
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  async function sendMessage() {
-    if (!message.trim()) {
-      alert("Please enter a message.");
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
 
-    setReply("Loading...");
-
-
+    const userMessage = input.trim();
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+    setLoading(true);
 
     try {
-
-
-
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message }),
-    });
-    const data = await response.json();
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
 
-    if (!response.ok) {
-      setReply(`Error: ${data.error || "Unknown error"}`);
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+
+      setMessages((prev) => [...prev, { role: "ai", text: data.reply }]);
+    } catch (error: any) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: "Sorry, I encountered an error. Please try again." },
+      ]);
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    setReply(data.reply);
-  } catch (error) {
-    console.error("Error sending message:", error);
-    setReply("Error: Unable to send message.");
-  }
-}
+  };
 
   return (
-    <div className="flex flex-col items-center p-10">
-      <h1 className="text-3xl font-bold mb-4"><em><mark>KNUST AI</mark></em></h1>
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+      <div className="w-full max-w-2xl mt-10">
+        <h1 className="text-3xl font-bold text-center text-blue-800 mb-2">
+          KNUST AI
+        </h1>
+        <p className="text-center text-gray-600 mb-8">
+          Your academic assistant for coding, science & research
+        </p>
 
-      <input
-        className="border p-2 w-full max-w-md mb-4"
-        placeholder="Type your message..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
+        {/* Chat messages */}
+        <div className="bg-white rounded-xl shadow-md p-4 h-[500px] overflow-y-auto mb-4 space-y-4">
+          {messages.length === 0 && (
+            <p className="text-gray-400 text-center mt-20">
+              Ask me anything about coding, science, or research...
+            </p>
+          )}
 
-      <button
-        onClick={sendMessage}
-        className="bg-blue-600 text-white px-4 py-2 mt-3 rounded mb-4"
-      >
-        Send
-      </button>
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${
+                  msg.role === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-800"
+                }`}
+              >
+                {msg.text}
+              </div>
+            </div>
+          ))}
 
-      <div className="mt-6 p-4 border w-full max-w-md bg-gray-100 rounded">
-        <p className="font-semibold">AI Response:</p>
-        <p>{reply}</p>
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-gray-100 px-4 py-2 rounded-2xl text-sm text-gray-500">
+                Thinking...
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input form */}
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your question..."
+            className="flex-1 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 disabled:bg-blue-300 transition"
+          >
+            Send
+          </button>
+        </form>
       </div>
-    </div>
-  );  
+    </main>
+  );
 }
