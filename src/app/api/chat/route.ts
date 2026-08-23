@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "whisper-large-v3-turbo", 
+          model: "qwen/qwen3.6-27b", 
           messages: [
             {
               role: "system",
