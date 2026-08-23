@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { message } = await req.json();
 
+  console.log("API KEY:", process.env.GROQ_API_KEY); // Log the API key to verify it's being read correctly
+
+    
+
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
