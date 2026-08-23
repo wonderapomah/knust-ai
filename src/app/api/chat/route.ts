@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b", 
+          model: "whisper-large-v3-turbo", 
           messages: [
             {
               role: "system",
