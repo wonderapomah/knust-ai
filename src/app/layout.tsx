@@ -20,8 +20,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'KNUST AI',
-  description: 'Your academic assistant for coding, science & research',
+  title: 'Bright Minds AI',
+  description: 'Your academic assistant for coding, nature & research',
 }
 
 export default function RootLayout({

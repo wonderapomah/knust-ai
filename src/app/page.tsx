@@ -45,17 +45,17 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
       <div className="w-full max-w-2xl mt-10">
         <h1 className="text-3xl font-bold text-center text-blue-800 mb-2">
-          KNUST AI
+          BRIGHT MINDS AI
         </h1>
         <p className="text-center text-gray-600 mb-8">
-          Your academic assistant for coding, science & research
+          Your academic assistant for coding, nature & research
         </p>
 
         {/* Chat messages */}
         <div className="bg-white rounded-xl shadow-md p-4 h-[500px] overflow-y-auto mb-4 space-y-4">
           {messages.length === 0 && (
             <p className="text-gray-400 text-center mt-20">
-              Ask me anything about coding, science, or research...
+              Ask me anything about coding, nature, or research...
             </p>
           )}
 
