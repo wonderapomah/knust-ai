@@ -8,6 +8,7 @@ import {
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import Script from 'next/script'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,6 +33,8 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1687343148939289"
+     crossOrigin="anonymous"></script></head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
             <Show when="signed-out">
