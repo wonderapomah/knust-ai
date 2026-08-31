@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
+
+const FREE_DAILY_LIMIT = 15;
+const PAID_DAILY_LIMIT = 200;
+
+function getTodayKey(userId: string) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `chat-count:${userId}:${today}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json();
+    const body = await req.json();
+    const { message, userId: bodyUserId, plan: bodyPlan } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -20,6 +32,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const userId = bodyUserId || ip;
+    const plan = bodyPlan === "paid" ? "paid" : "free";
+    const dailyLimit = plan === "paid" ? PAID_DAILY_LIMIT : FREE_DAILY_LIMIT;
+    const key = getTodayKey(userId);
+
+    const currentCount = (await redis.get<number>(key)) || 0;
+
+    if (currentCount >= dailyLimit) {
+      return NextResponse.json(
+        {
+          error:
+            plan === "paid"
+              ? "You have reached today's paid limit."
+              : "You have reached today's free limit. Please upgrade.",
+          plan,
+          used: currentCount,
+          limit: dailyLimit,
+        },
+        { status: 429 }
+      );
+    }
+
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
@@ -29,7 +65,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "qwen/qwen3.6-27b", 
+          model: "qwen/qwen3.6-27b",
           messages: [
             {
               role: "system",
@@ -57,9 +93,20 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "No response generated.";
+    const reply =
+      data.choices?.[0]?.message?.content || "No response generated.";
 
-    return NextResponse.json({ reply });
+    const used = await redis.incr(key);
+    if (used === 1) {
+      await redis.expire(key, 60 * 60 * 26);
+    }
+
+    return NextResponse.json({
+      reply,
+      plan,
+      used,
+      limit: dailyLimit,
+    });
   } catch (error) {
     console.error("API Route Error:", error);
     return NextResponse.json(
