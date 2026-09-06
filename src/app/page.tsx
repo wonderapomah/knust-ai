@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import PayButton from "./components/PayButton";
+
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -43,6 +45,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center p-4">
+      <div className="payment-button">
+        <PayButton />
+      </div>
       <div className="w-full max-w-2xl mt-10">
         <h1 className="text-3xl font-bold text-center text-blue-800 mb-2">
           BRIGHT MINDS AI
