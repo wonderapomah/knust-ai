@@ -23,7 +23,7 @@ export default function PayButton() {
 
   return (
     <button onClick={payWithPaystack}>
-      Pay GHS 50
+      Upgrade for premium access
     </button>
   );
 }
