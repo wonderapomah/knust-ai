@@ -1,42 +1,42 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json();
+    const email = body.email;
 
-    const { email } = body;
-
-    if (!email || typeof email !== "string") {
+    if (!email) {
       return NextResponse.json(
-        { error: "A valid email is required" },
+        { error: "Email is required" },
         { status: 400 }
       );
     }
 
-    if (!process.env.PAYSTACK_SECRET_KEY) {
-      console.error("PAYSTACK_SECRET_KEY is missing");
+    const secretKey = process.env.PAYSTACK_SECRET_KEY;
 
+    if (!secretKey) {
       return NextResponse.json(
-        { error: "Paystack secret key is not configured" },
+        { error: "PAYSTACK_SECRET_KEY is not configured" },
         { status: 500 }
       );
     }
 
-    const amount = 5000; // GHS 50.00, converted to pesewas
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const response = await fetch(
+    const paystackResponse = await fetch(
       "https://api.paystack.co/transaction/initialize",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${secretKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          amount,
+          amount: 5000,
           currency: "GHS",
-          callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment-success`,
+          callback_url: `${appUrl}/payment-success`,
           metadata: {
             plan: "premium",
             duration: 30,
@@ -45,30 +45,27 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    const data = await response.json();
+    const data = await paystackResponse.json();
 
-    if (!response.ok || !data.status) {
-      console.error("Paystack initialization error:", data);
-
+    if (!paystackResponse.ok || !data.status) {
       return NextResponse.json(
         {
           error:
-            data?.message || "Unable to initialize Paystack payment",
+            data.message || "Paystack could not initialize the transaction",
         },
-        { status: response.status || 500 }
+        { status: paystackResponse.status || 400 }
       );
     }
 
     return NextResponse.json({
       authorization_url: data.data.authorization_url,
-      access_code: data.data.access_code,
       reference: data.data.reference,
     });
   } catch (error) {
-    console.error("Initialize payment error:", error);
+    console.error("Paystack initialization error:", error);
 
     return NextResponse.json(
-      { error: "Something went wrong while starting payment" },
+      { error: "Internal server error while initializing payment" },
       { status: 500 }
     );
   }
