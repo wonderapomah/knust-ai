@@ -117,7 +117,7 @@ IMPORTANT RULES:
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "qwen/qwen3-32b",
+          model: "llama-3.3-70b-versatile",
           messages: groqMessages,
           temperature: 0.3,
           max_tokens: 2048,
