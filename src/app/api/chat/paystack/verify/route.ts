@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,6 +23,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // Verify the transaction with Paystack
     const response = await fetch(
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(
         reference
@@ -47,6 +51,7 @@ export async function GET(req: NextRequest) {
 
     const transaction = data.data;
 
+    // Confirm the payment details
     const paymentIsSuccessful =
       transaction.status === "success" &&
       transaction.currency === "GHS" &&
@@ -62,13 +67,41 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const customerEmail = transaction.customer?.email;
+
+    if (!customerEmail) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Customer email was not found.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Give the customer premium access for 30 days
+    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+    const userKey = `premium:${customerEmail.toLowerCase()}`;
+
+    await redis.set(
+      userKey,
+      {
+        email: customerEmail.toLowerCase(),
+        plan: "premium",
+        paymentReference: transaction.reference,
+        expiresAt,
+      },
+      {
+        ex: 30 * 24 * 60 * 60,
+      }
+    );
+
     return NextResponse.json({
       success: true,
-      message: "Payment verified successfully.",
-      reference: transaction.reference,
-      email: transaction.customer?.email,
-      amount: transaction.amount,
-      currency: transaction.currency,
+      message: "Payment verified and premium access activated.",
+      email: customerEmail,
+      expiresAt,
     });
   } catch (error) {
     console.error("Paystack verification error:", error);
