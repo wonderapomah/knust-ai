@@ -117,7 +117,7 @@ IMPORTANT RULES:
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b",
+          model: "whisper-large-v3-turbo",
           messages: groqMessages,
           temperature: 0.3,
           max_tokens: 2048,
