@@ -117,7 +117,7 @@ IMPORTANT RULES:
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "whisper-large-v3-turbo",
+          model: "groq/compound",
           messages: groqMessages,
           temperature: 0.3,
           max_tokens: 2048,
