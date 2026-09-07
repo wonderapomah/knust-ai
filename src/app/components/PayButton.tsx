@@ -5,13 +5,10 @@ import { useState } from "react";
 export default function PayButton() {
   const [loading, setLoading] = useState(false);
 
-  const payWithPaystack = async () => {
-    const email = prompt("Enter your email address:");
+  const payNow = async () => {
+    const email = window.prompt("Enter your email address:");
 
-    if (!email) {
-      alert("Email is required.");
-      return;
-    }
+    if (!email) return;
 
     try {
       setLoading(true);
@@ -21,22 +18,33 @@ export default function PayButton() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-        }),
+        body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Payment initialization failed.");
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Server returned non-JSON response:", text);
+        throw new Error(
+          "The payment server returned an HTML page instead of JSON."
+        );
       }
 
-      // Redirect the customer to Paystack's secure payment page
+      if (!response.ok) {
+        throw new Error(data.error || "Payment initialization failed");
+      }
+
+      if (!data.authorization_url) {
+        throw new Error("Paystack authorization URL was not returned.");
+      }
+
       window.location.href = data.authorization_url;
     } catch (error) {
       console.error("Payment error:", error);
-
       alert(
         error instanceof Error
           ? error.message
@@ -48,8 +56,8 @@ export default function PayButton() {
   };
 
   return (
-    <button onClick={payWithPaystack} disabled={loading}>
-      {loading ? "Opening payment..." : "Upgrade for premium access"}
+    <button onClick={payNow} disabled={loading}>
+      {loading ? "Opening payment..." : "Upgrade to Premium"}
     </button>
   );
 }
