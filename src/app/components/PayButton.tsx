@@ -1,29 +1,55 @@
 "use client";
 
-import PaystackPop from "@paystack/inline-js";
+import { useState } from "react";
 
 export default function PayButton() {
-  const payWithPaystack = () => {
-    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+  const [loading, setLoading] = useState(false);
 
-    if (!publicKey) {
-      alert("Paystack public key is missing.");
+  const payWithPaystack = async () => {
+    const email = prompt("Enter your email address:");
+
+    if (!email) {
+      alert("Email is required.");
       return;
     }
 
-    const paystack = new PaystackPop();
+    try {
+      setLoading(true);
 
-    paystack.checkout({
-      key: publicKey,
-      email: "customer@example.com",
-      amount: 5000,
-      currency: "GHS",
-    });
+      const response = await fetch("/api/paystack/initialize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Payment initialization failed.");
+      }
+
+      // Redirect the customer to Paystack's secure payment page
+      window.location.href = data.authorization_url;
+    } catch (error) {
+      console.error("Payment error:", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while starting payment."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <button onClick={payWithPaystack}>
-      Upgrade for premium access
+    <button onClick={payWithPaystack} disabled={loading}>
+      {loading ? "Opening payment..." : "Upgrade for premium access"}
     </button>
   );
 }
