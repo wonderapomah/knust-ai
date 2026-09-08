@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 import PayButton from "./components/PayButton";
 
 type Message = {
-  role: "user" | "ai";
+  role: "user" | "assistant";
   text: string;
 };
 
@@ -52,7 +52,7 @@ export default function Home() {
       setMessages((prev) => [
         ...prev,
         {
-          role: "ai",
+          role: "assistant",
           text: data.reply,
         },
       ]);
@@ -60,7 +60,7 @@ export default function Home() {
       setMessages((prev) => [
         ...prev,
         {
-          role: "ai",
+          role: "assistant",
           text: "Sorry, I encountered an error. Please try again.",
         },
       ]);
@@ -116,7 +116,7 @@ export default function Home() {
                 }`}
               >
 
-                {msg.role === "ai" ? (
+                {msg.role === "assistant" ? (
                   <div className="prose prose-sm max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.text}
