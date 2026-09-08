@@ -136,6 +136,12 @@ use web search when necessary.
         body: JSON.stringify({
           model: "openai/gpt-oss-120b",
           messages: groqMessages,
+
+           compound_custom: {
+        tools: {
+          enabled_tools: ["web_search", "visit_website"],
+        },
+      },
           max_tokens: 2048,
         }),
       }
