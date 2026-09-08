@@ -4,7 +4,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import PayButton from "./components/PayButton";
+import PayButton from "./components/PayButton";s
 
 type Message = {
   role: "user" | "ai";
