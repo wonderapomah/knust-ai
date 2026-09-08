@@ -148,9 +148,12 @@ use web search when necessary.
 
       return NextResponse.json(
         {
-          error: "The AI service returned an error.",
+          error:
+            data?.error?.message ||
+            data?.error ||
+            "The AI service returned an error.",
         },
-        { status: 500 }
+        { status: response.status }
       );
     }
 
