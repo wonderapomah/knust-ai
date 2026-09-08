@@ -23,28 +23,38 @@ export default function PayButton() {
 
       const text = await response.text();
 
-      let data;
+      console.log("Response status:", response.status);
+      console.log("Response body:", text);
+
+      let data: {
+        authorization_url?: string;
+        error?: string;
+      };
 
       try {
         data = JSON.parse(text);
       } catch {
-        console.error("Server returned non-JSON response:", text);
         throw new Error(
-          "The payment server returned an HTML page instead of JSON."
+          "The payment API returned HTML instead of JSON."
         );
       }
 
       if (!response.ok) {
-        throw new Error(data.error || "Payment initialization failed");
+        throw new Error(
+          data.error || "Payment initialization failed."
+        );
       }
 
       if (!data.authorization_url) {
-        throw new Error("Paystack authorization URL was not returned.");
+        throw new Error(
+          "Paystack authorization URL was not returned."
+        );
       }
 
       window.location.href = data.authorization_url;
     } catch (error) {
       console.error("Payment error:", error);
+
       alert(
         error instanceof Error
           ? error.message
@@ -56,7 +66,7 @@ export default function PayButton() {
   };
 
   return (
-    <button onClick={payNow} disabled={loading}>
+    <button type="button" onClick={payNow} disabled={loading}>
       {loading ? "Opening payment..." : "Upgrade to Premium"}
     </button>
   );
