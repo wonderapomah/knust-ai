@@ -45,6 +45,8 @@ export default function Home() {
 
       const data = await res.json();
 
+      console.log("FULL CHAT RESPONSE:", data);
+
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");
       }
