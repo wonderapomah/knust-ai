@@ -59,11 +59,13 @@ export default function Home() {
         },
       ]);
     } catch (error) {
+
+      console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, I encountered an error. Please try again.",
+          text: "Sorry, I'm having trouble processing that request right now. Please try again.",
         },
       ]);
 
