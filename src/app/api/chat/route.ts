@@ -106,6 +106,11 @@ use web search when necessary.
               typeof item.content === "string"
           )
           .slice(-10)
+          .map((item: any) => ({
+            role: item.role === "ai" ? "assistant" : "user",
+            content: item.text,
+
+          }))
       : [];
 
     const groqMessages = [
@@ -131,7 +136,6 @@ use web search when necessary.
         body: JSON.stringify({
           model: "groq/compound",
           messages: groqMessages,
-          temperature: 0.3,
           max_tokens: 2048,
         }),
       }
