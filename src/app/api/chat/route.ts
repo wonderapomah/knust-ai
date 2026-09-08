@@ -83,6 +83,7 @@ IMPORTANT RULES:
   studied falling objects and planetary motion.
 - Do not help with illegal hacking, stealing data, malware, or damaging
   computer systems.
+  Do not provide outdated information as current facts. If you are unsure of an answer, say "I'm not sure" or
 `;
 
     const safeHistory = Array.isArray(history)
