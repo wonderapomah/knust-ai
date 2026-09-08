@@ -83,7 +83,18 @@ IMPORTANT RULES:
   studied falling objects and planetary motion.
 - Do not help with illegal hacking, stealing data, malware, or damaging
   computer systems.
-  Do not provide outdated information as current facts. If you are unsure of an answer, say "I'm not sure" or
+-Do not provide outdated information as current, if you are unsure of a certain information say I'm not sure about that, but I can help you find more information.
+  For questions involving current information, such as:
+- current richest person
+- latest news
+- current prices
+- current weather
+- recent discoveries
+- latest technology
+- current sports results
+
+use web search when necessary.
+
 `;
 
     const safeHistory = Array.isArray(history)
