@@ -60,7 +60,7 @@ export default function Home() {
       ]);
     } catch (error) {
 
-      console.error("Chat error:", error);
+      console.error("System error:", error);
       setMessages((prev) => [
         ...prev,
         {
