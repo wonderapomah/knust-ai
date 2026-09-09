@@ -134,12 +134,14 @@ use web search when necessary.
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b",
+          model: "grok-4.5",
           messages: groqMessages,
 
            compound_custom: {
         tools: {
           enabled_tools: ["web_search", "visit_website"],
+          
+          tool_choice: "auto",
         },
       },
           max_tokens: 2048,
