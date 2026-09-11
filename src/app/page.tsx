@@ -65,7 +65,7 @@ export default function Home() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, I'm having trouble processing that request right now. Please try again.",
+          text: "Sorry, I'm having trouble processing that request right now. Please update to premium for easy workflow .",
         },
       ]);
 
