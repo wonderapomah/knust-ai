@@ -134,7 +134,7 @@ use web search when necessary.
           Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b",
+          model: "Kimi K3",
           messages: groqMessages,
 
            compound_custom: {
